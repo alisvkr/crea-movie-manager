@@ -1,37 +1,13 @@
-## NestJS Starter Kit [v2]
+## Features
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![build](https://github.com/monstar-lab-oss/nestjs-starter-rest-api/actions/workflows/build-workflow.yml/badge.svg?branch=master&event=push)](https://github.com/monstar-lab-oss/nestjs-starter-rest-api/actions/workflows/build-workflow.yml)
-[![tests](https://github.com/monstar-lab-oss/nestjs-starter-rest-api/actions/workflows/tests-workflow.yml/badge.svg?branch=master&event=push)](https://github.com/monstar-lab-oss/nestjs-starter-rest-api/actions/workflows/tests-workflow.yml)
-
-This starter kit has the following outline:
-
-- Monolithic Project
-- REST API
-
-This is a Github Template Repository, so it can be easily [used as a starter template](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for other repositories.
-
-## Sample implementations
-
-To view sample implementations based on this starter kit, please visit the [nestjs-sample-solutions](https://github.com/monstar-lab-oss/nestjs-sample-solutions) repository.
-
-## Starter kit Features
-
-One of our main principals has been to keep the starter kit as lightweight as possible. With that in mind, here are some of the features that we have added in this starter kit.
-
-| Feature                  | Info               | Progress |
-| ------------------------ | ------------------ | -------- |
-| Authentication           | JWT                | Done     |
-| Authorization            | RBAC (Role based)  | Done     |
-| ORM Integration          | TypeORM            | Done     |
-| DB Migrations            | TypeORM            | Done     |
-| Logging                  | winston            | Done     |
-| Request Validation       | class-validator    | Done     |
-| Pagination               | SQL offset & limit | Done     |
-| Docker Ready             | Dockerfile         | Done     |
-| Devcontainer             | -                  | Done     |
-| Auto-generated OpenAPI   | -                  | Done     |
-| Auto-generated ChangeLog | -                  | WIP      |
+-Authentication => JWT
+-Authorization => RBAC (Role based)
+-ORM Integration => TypeORM
+-DB Migrations => TypeORM
+-Logging => winston  
+-Request Validation => class-validator
+-Pagination => SQL offset & limit
+-Docker Ready => Dockerfile
 
 ## Installation
 
@@ -41,8 +17,6 @@ This script allows you to run the same commands inside the same environment and 
 ```bash
 $ npm install
 ```
-
-Create a `.env` file from the template `.env.template` file.
 
 Generate public and private key pair for jwt authentication:
 
@@ -123,8 +97,6 @@ $ docker run -p 3000:3000 --volume 'pwd':/usr/src/app --network --env-file .env 
 $ docker compose up
 ```
 
-Learn more about Docker conventions [here](https://github.com/monstar-lab-group/nodejs-backend/blob/master/architecture/docker-ready.md). (WIP - Currently this is an internal org link.)
-
 ## Test
 
 ```bash
@@ -153,7 +125,3 @@ $ npm run migration:run
 # revert migration
 $ npm run migration:revert
 ```
-
-## Architecture
-
-- [Project Structure](./docs/project-structure.md)
