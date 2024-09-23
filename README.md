@@ -1,13 +1,29 @@
+## Excuses (Not enough time to fix those :/)
+
+- .env file added to git (I know this is wrong just added to ease running app locally) (actual environment variables added to Github Action secrets ) \
+- some of the development and deployment stages are missing
+- missing heroku deployment (got error while deploying, not enough time to fix) \
+- some tests not fully covered and some of the e2e test failing\
+- could be buggy codes \
+
+## Good To Know
+
+- http://localhost:8081/?pgsql=pgsqldb&username=root
+- password written in .env
+- User default admin credentials as manager while testing => username:crea password:crea123
+
 ## Features
 
--Authentication => JWT
--Authorization => RBAC (Role based)
--ORM Integration => TypeORM
--DB Migrations => TypeORM
--Logging => winston  
--Request Validation => class-validator
--Pagination => SQL offset & limit
--Docker Ready => Dockerfile
+- Authentication => JWT \
+- Authorization => RBAC (Role based) \
+- ORM Integration => TypeORM \
+- DB Migrations => TypeORM \
+- In App Logging => winston \
+- Audit & Exception Logs => TypeORM \
+- Request Validation => class-validator \
+- Pagination => SQL offset & limit \
+- Docker Ready => Dockerfile \
+- Github Actions for build&tests (removed e2e tests from actions(still buggy)) \
 
 ## Installation
 
