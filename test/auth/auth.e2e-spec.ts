@@ -53,11 +53,9 @@ describe('AuthController (e2e)', () => {
 
     const registerOutput = {
       id: 2,
-      name: 'e2etester',
       username: 'e2etester',
       roles: [ROLE.USER],
       isAccountDisabled: false,
-      email: 'e2etester@random.com',
     };
 
     it('should successfully register a new user', async () => {

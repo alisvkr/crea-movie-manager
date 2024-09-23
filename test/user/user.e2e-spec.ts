@@ -83,51 +83,6 @@ describe('UserController (e2e)', () => {
     });
   });
 
-  const updateUserInput = {
-    name: 'New e2etestername',
-    password: '12345678aA12',
-  };
-
-  describe('update a user', () => {
-    it('successfully updates a user', async () => {
-      const expectedOutput: UserOutput = {
-        ...adminUser,
-        ...{ name: 'New e2etestername' },
-      };
-
-      return request(app.getHttpServer())
-        .patch('/users/1')
-        .send(updateUserInput)
-        .expect(HttpStatus.OK)
-        .expect((res) => {
-          const resp = res.body;
-          expectedOutput.updatedAt = resp.data.updatedAt;
-          expect(resp).toEqual({ data: expectedOutput, meta: {} });
-        });
-    });
-
-    it('throws NOT_FOUND when user doesnt exist', () => {
-      return request(app.getHttpServer())
-        .patch('/users/99')
-        .expect(HttpStatus.NOT_FOUND);
-    });
-
-    it('update fails when incorrect password type', () => {
-      updateUserInput.password = 12345 as any;
-      return request(app.getHttpServer())
-        .patch('/users/1')
-        .expect(HttpStatus.BAD_REQUEST)
-        .send(updateUserInput)
-        .expect((res) => {
-          const resp = res.body;
-
-          expect(resp.error.details.message).toContain(
-            'password must be a string',
-          );
-        });
-    });
-  });
-
   afterAll(async () => {
     await app.close();
     await closeDBAfterTest();

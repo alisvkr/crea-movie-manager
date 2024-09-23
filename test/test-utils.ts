@@ -55,9 +55,9 @@ export const seedAdminUser = async (
   app: INestApplication,
 ): Promise<{ adminUser: UserOutput; authTokenForAdmin: AuthTokenOutput }> => {
   const defaultAdmin: CreateUserInput = {
-    username: 'default-admin',
+    username: 'crea',
     age: 12,
-    password: 'default-admin-password',
+    password: 'crea123',
     roles: [ROLE.ADMIN],
     isAccountDisabled: false,
   };
