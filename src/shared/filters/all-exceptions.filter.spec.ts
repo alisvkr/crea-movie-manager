@@ -80,22 +80,22 @@ describe('AllExceptionsFilter', () => {
 
   it('should handle HttpException with right status code', async () => {
     filter.catch(mockException1, mockContext);
-    expect(mockResponse.status).toBeCalledWith(HttpStatus.NOT_FOUND);
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
 
     filter.catch(mockException2, mockContext);
-    expect(mockResponse.status).toBeCalledWith(HttpStatus.BAD_REQUEST);
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
   });
 
   it('should handle unhandled error with status code 500', async () => {
     filter.catch(mockError, mockContext);
-    expect(mockResponse.status).toBeCalledWith(
+    expect(mockResponse.status).toHaveBeenCalledWith(
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   });
 
   it('should handle exception with plain string message', async () => {
     filter.catch(mockException1, mockContext);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           statusCode: HttpStatus.NOT_FOUND,
@@ -107,7 +107,7 @@ describe('AllExceptionsFilter', () => {
 
   it('should handle exception with object type message', async () => {
     filter.catch(mockException2, mockContext);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           statusCode: HttpStatus.BAD_REQUEST,
@@ -123,7 +123,7 @@ describe('AllExceptionsFilter', () => {
     //   .mockImplementation(() => 'development');
 
     filter.catch(mockError, mockContext);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -141,7 +141,7 @@ describe('AllExceptionsFilter', () => {
       .mockImplementation(() => 'production');
 
     filter.catch(mockError, mockContext);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -155,7 +155,7 @@ describe('AllExceptionsFilter', () => {
 
   it('should contain request id in response', async () => {
     filter.catch(mockMessage1, mockContext);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           requestId: mockRequest.headers[REQUEST_ID_TOKEN_HEADER],
@@ -166,7 +166,7 @@ describe('AllExceptionsFilter', () => {
 
   it('should contain request path in response', async () => {
     filter.catch(mockMessage1, mockContext);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           path: mockRequest.url,
@@ -183,8 +183,8 @@ describe('AllExceptionsFilter', () => {
       .mockImplementation(() => mockDate);
 
     filter.catch(mockException1, mockContext);
-    expect(mockResponse.status).toBeCalledWith(HttpStatus.NOT_FOUND);
-    expect(mockResponse.json).toBeCalledWith(
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
+    expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({
           timestamp: mockDate.toISOString(),

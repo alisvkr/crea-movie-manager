@@ -22,7 +22,7 @@ describe('MovieController', () => {
     getMovieById: jest.fn(),
     updateMovie: jest.fn(),
     createMovies: jest.fn(),
-    deleteMovie: jest.fn(),
+    deleteMovies: jest.fn(),
   };
   const mockedLogger = { setContext: jest.fn(), log: jest.fn() };
 
@@ -46,7 +46,7 @@ describe('MovieController', () => {
 
   describe('Create movie', () => {
     let input: CreateMovieInputBulk;
-
+    const currentDate = new Date();
     beforeEach(() => {
       input = {
         movies: [
@@ -58,7 +58,7 @@ describe('MovieController', () => {
               {
                 roomNumber: 4,
                 totalTicketCount: 3,
-                date: new Date(),
+                date: currentDate,
                 timeSlot: TIME_SLOT.SLOT_1,
               },
             ],
@@ -73,21 +73,20 @@ describe('MovieController', () => {
     });
 
     it('should return data which includes info from movieService.createMovies', async () => {
-      const currentDate = new Date();
       const expectedOutput: MovieOutputBulk = {
         movies: [
           {
-            fillSessions: () => {},
+            fillFromDto: () => {},
             id: 1,
-            name: 'Test',
-            description: 'Hello, world!',
+            name: 'Movie1',
+            description: 'Thriller Movie',
             minAge: 12,
             sessions: [
               {
                 id: 1,
                 roomNumber: 4,
                 totalTicketCount: 3,
-                date: new Date(),
+                date: currentDate,
                 timeSlot: TIME_SLOT.SLOT_1,
               },
             ],
@@ -165,13 +164,12 @@ describe('MovieController', () => {
   });
 
   describe('Delete movie', () => {
-    it('should call movieService.deleteMovie with correct id', () => {
+    it('should call movieService.deleteMovies with correct ids', () => {
       const movieIds = '1';
       controller.deleteMovies(ctx, movieIds);
-      expect(mockedMovieService.deleteMovie).toHaveBeenCalledWith(
-        ctx,
-        movieIds,
-      );
+      expect(mockedMovieService.deleteMovies).toHaveBeenCalledWith(ctx, [
+        +movieIds,
+      ]);
     });
   });
 });

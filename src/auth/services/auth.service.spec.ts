@@ -89,7 +89,7 @@ describe('AuthService', () => {
       expect(await service.validateUser(ctx, 'jhon', 'somepass')).toEqual(
         userOutput,
       );
-      expect(mockedUserService.validateUsernamePassword).toBeCalledWith(
+      expect(mockedUserService.validateUsernamePassword).toHaveBeenCalledWith(
         ctx,
         'jhon',
         'somepass',
@@ -125,7 +125,7 @@ describe('AuthService', () => {
 
       const result = service.login(ctx);
 
-      expect(service.getAuthToken).toBeCalledWith(ctx, accessTokenClaims);
+      expect(service.getAuthToken).toHaveBeenCalledWith(ctx, accessTokenClaims);
       expect(result).toEqual(authToken);
     });
   });
@@ -138,7 +138,10 @@ describe('AuthService', () => {
 
       const result = await service.register(ctx, registerInput);
 
-      expect(mockedUserService.createUser).toBeCalledWith(ctx, registerInput);
+      expect(mockedUserService.createUser).toHaveBeenCalledWith(
+        ctx,
+        registerInput,
+      );
       expect(result).toEqual(userOutput);
     });
   });
@@ -155,7 +158,7 @@ describe('AuthService', () => {
 
       const result = await service.refreshToken(ctx);
 
-      expect(service.getAuthToken).toBeCalledWith(ctx, userOutput);
+      expect(service.getAuthToken).toHaveBeenCalledWith(ctx, userOutput);
       expect(result).toMatchObject(authToken);
     });
 
@@ -208,7 +211,7 @@ describe('AuthService', () => {
     it('should generate access token with payload', () => {
       const result = service.getAuthToken(ctx, user);
 
-      expect(mockedJwtService.sign).toBeCalledWith(
+      expect(mockedJwtService.sign).toHaveBeenCalledWith(
         { ...payload, ...subject },
         { expiresIn: accessTokenExpiry },
       );
@@ -221,7 +224,7 @@ describe('AuthService', () => {
     it('should generate refresh token with subject', () => {
       const result = service.getAuthToken(ctx, user);
 
-      expect(mockedJwtService.sign).toBeCalledWith(subject, {
+      expect(mockedJwtService.sign).toHaveBeenCalledWith(subject, {
         expiresIn: refreshTokenExpiry,
       });
 

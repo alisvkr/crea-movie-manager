@@ -152,7 +152,7 @@ export class MovieController {
 
   @Delete(':ids')
   @ApiOperation({
-    summary: 'Delete movie by id API',
+    summary: 'Delete movie by ids API',
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

@@ -12,7 +12,7 @@ import {
 } from './movie-session-input.dto';
 import { Expose, Type } from 'class-transformer';
 
-class CreateMovieInput {
+export class CreateMovieInput {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -28,11 +28,6 @@ class CreateMovieInput {
   @IsNumber()
   minAge: number;
 
-  // @Type(() => Array<MovieSessionInput>)
-  // @ApiProperty({
-  //   oneOf: [{ $ref: getSchemaPath(MovieSessionInput) }],
-  //   type: () => Array<MovieSessionInput>,
-  // })
   @ApiProperty({ isArray: true, type: MovieSessionInput })
   @IsNotEmpty()
   sessions: MovieSessionInput[];

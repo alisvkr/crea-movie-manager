@@ -47,16 +47,12 @@ export class MovieService {
     this.logger.log(ctx, `${this.createMovies.name} was called`);
 
     const movies = input.movies.map((movie) => {
-      let movieEntity = plainToClass(Movie, movie, {
-        enableImplicitConversion: true,
-      });
-      movieEntity.createSessionsFromDto(movie.sessions);
+      let movieEntity = new Movie();
+      movieEntity.fillFromDto(movie);
       return movieEntity;
     });
 
     const actor: Actor = ctx.user!;
-
-    const user = await this.userService.getUserById(ctx, actor.id);
 
     const isAllowed = this.aclService
       .forActor(actor)
@@ -69,9 +65,9 @@ export class MovieService {
     const savedMovies = await this.repository.save(movies);
     let movieOutputBulk = new MovieOutputBulk();
     movieOutputBulk.movies = savedMovies.map((savedMovie) => {
-      return plainToClass(MovieOutput, savedMovie, {
-        excludeExtraneousValues: true,
-      });
+      var newOutput = new MovieOutput();
+      newOutput.fillFromDto(savedMovie);
+      return newOutput;
     });
     return movieOutputBulk;
   }
@@ -99,10 +95,8 @@ export class MovieService {
 
     let moviesOutput = new MovieOutputBulk();
     moviesOutput.movies = movies.map((movie) => {
-      var outputObject = plainToClass(MovieOutput, movie, {
-        enableImplicitConversion: true,
-      });
-      outputObject.fillSessions(movie.sessions);
+      var outputObject = new MovieOutput();
+      outputObject.fillFromDto(movie);
       return outputObject;
     });
     return moviesOutput;

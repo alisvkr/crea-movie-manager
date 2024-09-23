@@ -12,6 +12,7 @@ import {
 import { MovieSession } from './movieSession.entity';
 import { MovieSessionInput } from '../dtos/movie-session-input.dto';
 import { Ticket } from './ticket.entity';
+import { CreateMovieInput } from '../dtos/movie-input.dto';
 
 @Entity('movie')
 export class Movie {
@@ -42,8 +43,11 @@ export class Movie {
   @UpdateDateColumn({ name: 'updatedAt' })
   updatedAt: Date;
 
-  createSessionsFromDto(sessions: MovieSessionInput[]) {
-    this.sessions = sessions.map((session, index) => {
+  fillFromDto(movie: CreateMovieInput) {
+    this.name = movie.name;
+    this.description = movie.description;
+    this.minAge = movie.minAge;
+    this.sessions = movie.sessions.map((session, index) => {
       var sessionEntity = new MovieSession();
       sessionEntity.date = session.date;
       sessionEntity.roomNumber = session.roomNumber;

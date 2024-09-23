@@ -23,8 +23,8 @@ describe('AppService', () => {
   const ctx = new RequestContext();
 
   describe('getHello', () => {
-    it('should return Hello World', () => {
-      expect(service.getHello(ctx)).toEqual('Hello World!');
+    it('should return Hello Crea!', () => {
+      expect(service.getHello(ctx)).toEqual('Hello Crea!');
     });
   });
 });

@@ -20,10 +20,10 @@ describe('AppController', () => {
   });
 
   describe('getHello', () => {
-    it('should return "Hello World!"', () => {
+    it('should return "Hello Crea!"', () => {
       const appController = moduleRef.get<AppController>(AppController);
       const ctx = new RequestContext();
-      expect(appController.getHello(ctx)).toBe('Hello World!');
+      expect(appController.getHello(ctx)).toBe('Hello Crea!');
     });
   });
 });

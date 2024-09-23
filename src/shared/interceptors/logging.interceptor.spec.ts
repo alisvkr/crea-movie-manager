@@ -3,6 +3,9 @@ import { ExecutionContext } from '@nestjs/common';
 import { AppLogger } from '../logger/logger.service';
 import * as utils from '../request-context/util';
 import { LoggingInterceptor } from './logging.interceptor';
+import { AuditLogRepository } from '../logger/repositories/audit.repository';
+import { ExceptionLogRepository } from '../logger/repositories/exception.repository';
+import { Test, TestingModule } from '@nestjs/testing';
 
 describe('LoggingInterceptor', () => {
   let loggingInterceptor: LoggingInterceptor;
@@ -13,10 +16,14 @@ describe('LoggingInterceptor', () => {
     header: jest.fn(),
   };
 
-  const mockExecutionContext = ({
+  const mockRepo = {
+    save: jest.fn(),
+  };
+
+  const mockExecutionContext = {
     switchToHttp: jest.fn().mockReturnThis(),
     getRequest: jest.fn().mockReturnThis(),
-  } as unknown) as ExecutionContext;
+  } as unknown as ExecutionContext;
 
   const mockCallHandler = {
     handle: jest.fn(),
@@ -24,7 +31,21 @@ describe('LoggingInterceptor', () => {
   };
 
   beforeEach(async () => {
-    loggingInterceptor = new LoggingInterceptor(new AppLogger());
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      providers: [
+        {
+          provide: AuditLogRepository,
+          useValue: mockRepo,
+        },
+        {
+          provide: ExceptionLogRepository,
+          useValue: mockRepo,
+        },
+        AppLogger,
+      ],
+    }).compile();
+    const appLogger = await moduleRef.resolve<AppLogger>(AppLogger);
+    loggingInterceptor = new LoggingInterceptor(appLogger);
   });
 
   it('should be defined', () => {
@@ -33,10 +54,9 @@ describe('LoggingInterceptor', () => {
 
   describe('intercept', () => {
     it('intercept', async () => {
-      (mockExecutionContext.switchToHttp().getRequest as jest.Mock<
-        any,
-        any
-      >).mockReturnValueOnce(mockRequest);
+      (
+        mockExecutionContext.switchToHttp().getRequest as jest.Mock<any, any>
+      ).mockReturnValueOnce(mockRequest);
       mockCallHandler.handle.mockReturnValueOnce({
         pipe: jest.fn(),
       });

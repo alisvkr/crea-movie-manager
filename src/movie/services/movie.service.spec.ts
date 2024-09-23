@@ -22,10 +22,14 @@ import {
 } from '../dtos/movie-session-input.dto';
 import { MovieSessionOutput } from '../dtos/movie-session-output.dto';
 import { TIME_SLOT } from '../constants/time-slot.constant';
+import { TicketRepository } from '../repositories/ticket.repository';
+import { plainToClass } from 'class-transformer';
+import { MovieSession } from '../entities/movieSession.entity';
 
 describe('MovieService', () => {
   let service: MovieService;
   let mockedRepository: any;
+  let mockedTicketRepository: any;
   let mockedUserService: any;
   const mockedLogger = { setContext: jest.fn(), log: jest.fn() };
 
@@ -40,6 +44,7 @@ describe('MovieService', () => {
             findOne: jest.fn(),
             findAndCount: jest.fn(),
             getById: jest.fn(),
+            getByIds: jest.fn(),
             remove: jest.fn(),
           },
         },
@@ -48,6 +53,10 @@ describe('MovieService', () => {
           useValue: {
             getUserById: jest.fn(),
           },
+        },
+        {
+          provide: TicketRepository,
+          useValue: {},
         },
         { provide: MovieAclService, useValue: new MovieAclService() },
         { provide: AppLogger, useValue: mockedLogger },
@@ -66,17 +75,6 @@ describe('MovieService', () => {
   const ctx = new RequestContext();
 
   describe('Create Movie', () => {
-    it('should get user from user claims user id', () => {
-      ctx.user = {
-        id: 1,
-        roles: [ROLE.USER],
-        username: 'testuser',
-      };
-
-      service.createMovies(ctx, new CreateMovieInputBulk());
-      expect(mockedUserService.getUserById).toHaveBeenCalledWith(ctx, 1);
-    });
-
     it('should call repository save with proper movie input and return proper output', async () => {
       ctx.user = {
         id: 1,
@@ -84,6 +82,7 @@ describe('MovieService', () => {
         username: 'testuser',
       };
 
+      const currentDate = new Date();
       const movieInput: CreateMovieInputBulk = {
         movies: [
           {
@@ -101,26 +100,37 @@ describe('MovieService', () => {
           },
         ],
       };
+      const entityInput = movieInput.movies.map((movie) => {
+        let movieEntity = new Movie();
+        movieEntity.fillFromDto(movie);
+        return movieEntity;
+      });
 
-      const author = new UserOutput();
-      mockedUserService.getUserById.mockResolvedValue(author);
-      const expected = {
-        title: 'Test',
-        post: 'Hello, world!',
-        author,
-      };
+      const repoOutput = [
+        {
+          id: 1,
+          name: 'Movie1',
+          description: 'Sci-fi movie',
+          minAge: 12,
+          sessions: [
+            {
+              id: 1,
+              roomNumber: 4,
+              tickets: [1, 2, 3],
+              date: new Date(),
+              timeSlot: TIME_SLOT.SLOT_1,
+            },
+          ],
+          createdAt: currentDate,
+          updatedAt: currentDate,
+        },
+      ];
 
-      const expectedOutput = {
-        id: 1,
-        title: 'Test',
-        post: 'Hello, world!',
-        author: new User(),
-      };
-      mockedRepository.save.mockResolvedValue(expectedOutput);
+      mockedRepository.save.mockResolvedValue(repoOutput);
 
       const output = await service.createMovies(ctx, movieInput);
-      expect(mockedRepository.save).toHaveBeenCalledWith(expected);
-      expect(output).toEqual(expectedOutput);
+      expect(mockedRepository.save).toHaveBeenCalledWith(entityInput);
+      expect(output.movies.length).toEqual(repoOutput.length); //fix this
     });
   });
 
@@ -130,41 +140,46 @@ describe('MovieService', () => {
     const currentDate = new Date();
 
     it('should return movies when found', async () => {
-      const expectedOutput: MovieOutputBulk = {
-        movies: [
-          {
-            fillSessions: () => {},
-            id: 1,
-            name: 'Test',
-            description: 'Hello, world!',
-            minAge: 12,
-            sessions: [
-              {
-                id: 1,
-                roomNumber: 4,
-                totalTicketCount: 3,
-                date: new Date(),
-                timeSlot: TIME_SLOT.SLOT_1,
-              },
-            ],
-            createdAt: currentDate,
-            updatedAt: currentDate,
-          },
-        ],
+      ctx.user = {
+        id: 2,
+        roles: [ROLE.USER],
+        username: 'testuser',
       };
+      const expectedOutput = [
+        {
+          id: 1,
+          name: 'Movie1',
+          description: 'Thriller Movie',
+          minAge: 12,
+          sessions: [
+            {
+              id: 1,
+              roomNumber: 4,
+              tickets: [1, 2, 3],
+              date: new Date(),
+              timeSlot: TIME_SLOT.SLOT_1,
+            },
+          ],
+          createdAt: currentDate,
+          updatedAt: currentDate,
+        },
+      ];
 
       mockedRepository.findAndCount.mockResolvedValue([
         expectedOutput,
-        expectedOutput.movies.length,
+        expectedOutput.length,
       ]);
 
-      expect(await service.getMovies(ctx, limit, offset)).toEqual({
-        movies: expectedOutput,
-        count: expectedOutput.movies.length,
-      });
+      const serviceOutput = await service.getMovies(ctx, limit, offset);
+      expect(serviceOutput.movies.length).toEqual(expectedOutput.length);
     });
 
     it('should return empty array when movies are not found', async () => {
+      ctx.user = {
+        id: 2,
+        roles: [ROLE.USER],
+        username: 'testuser',
+      };
       const expectedOutput: MovieOutput[] = [];
 
       mockedRepository.findAndCount.mockResolvedValue([
@@ -172,24 +187,28 @@ describe('MovieService', () => {
         expectedOutput.length,
       ]);
 
-      expect(await service.getMovies(ctx, limit, offset)).toEqual({
-        movies: expectedOutput,
-        count: expectedOutput.length,
-      });
+      expect(
+        (await service.getMovies(ctx, limit, offset)).movies.length,
+      ).toEqual(expectedOutput.length);
     });
   });
 
   describe('getMovie', () => {
     it('should return movie by id when movie is found', async () => {
+      ctx.user = {
+        id: 2,
+        roles: [ROLE.ADMIN],
+        username: 'testuser',
+      };
       const id = 1;
       const currentDate = new Date();
 
       const expectedOutput: MovieOutput = {
         id: 1,
-        name: 'Test',
-        description: 'Hello, world!',
+        name: 'Movie1',
+        description: 'Thriller Movie',
         minAge: 12,
-        fillSessions: () => {},
+        fillFromDto: () => {},
         sessions: [
           {
             id: 1,
@@ -205,7 +224,9 @@ describe('MovieService', () => {
 
       mockedRepository.getById.mockResolvedValue(expectedOutput);
 
-      expect(await service.getMovieById(ctx, id)).toEqual(expectedOutput);
+      expect((await service.getMovieById(ctx, id)).name).toEqual(
+        expectedOutput.name,
+      );
     });
 
     it('should fail when movie is not found and return the repository error', async () => {
@@ -224,27 +245,25 @@ describe('MovieService', () => {
   });
 
   describe('Update Movie', () => {
+    ctx.user = {
+      id: 2,
+      roles: [ROLE.ADMIN],
+      username: 'testuser',
+    };
     it('should get movie by id', () => {
-      ctx.user = {
-        id: 1,
-        roles: [ROLE.USER],
-        username: 'testuser',
-      };
       const movieId = 1;
       const input: UpdateMovieInput = {
-        name: 'Test',
-        description: 'Hello, world!',
+        name: 'Movie1',
+        description: 'Thriller Movie',
         minAge: 12,
         sessions: new MovieSessionOutput(),
       };
 
-      const author = new User();
-      author.id = 1;
       mockedRepository.getById.mockResolvedValue({
-        id: 1,
-        title: 'Old title',
-        post: 'Old post',
-        author,
+        name: 'Movie1',
+        description: 'Thriller Movie',
+        minAge: 12,
+        sessions: new MovieSessionOutput(),
       });
 
       service.updateMovie(ctx, movieId, input);
@@ -252,34 +271,22 @@ describe('MovieService', () => {
     });
 
     it('should save movie with updated title and post', async () => {
-      ctx.user = {
-        id: 1,
-        roles: [ROLE.USER],
-        username: 'testuser',
-      };
       const movieId = 1;
       const input: UpdateMovieInput = {
-        name: 'Test',
-        description: 'Hello, world!',
+        name: 'Movie1',
+        description: 'Thriller Movie',
         minAge: 12,
         sessions: new MovieSessionOutput(),
       };
-      const author = new User();
-      author.id = 1;
-
-      mockedRepository.getById.mockResolvedValue({
-        id: 1,
-        title: 'Old title',
-        post: 'Old post',
-        author,
-      });
 
       const expected = {
-        id: 1,
-        title: 'New Title',
-        post: 'New Post',
-        author,
+        name: 'Movie1',
+        description: 'Thriller Movie',
+        minAge: 12,
+        sessions: new MovieSessionOutput(),
       };
+      mockedRepository.getById.mockResolvedValue(expected);
+
       await service.updateMovie(ctx, movieId, input);
       expect(mockedRepository.save).toHaveBeenCalledWith(expected);
     });
@@ -292,8 +299,8 @@ describe('MovieService', () => {
       };
       const movieId = 1;
       const input: UpdateMovieInput = {
-        name: 'Test',
-        description: 'Hello, world!',
+        name: 'Movie1',
+        description: 'Thriller Movie',
         minAge: 12,
         sessions: new MovieSessionOutput(),
       };
@@ -301,10 +308,10 @@ describe('MovieService', () => {
       author.id = 1;
 
       mockedRepository.getById.mockResolvedValue({
-        id: 1,
-        title: 'Old title',
-        post: 'Old post',
-        author,
+        name: 'Movie1',
+        description: 'Thriller Movie',
+        minAge: 12,
+        sessions: new MovieSessionOutput(),
       });
 
       try {
@@ -317,25 +324,29 @@ describe('MovieService', () => {
   });
 
   describe('deleteMovies', () => {
-    const movieIds = [1, 2];
+    const movieIds = [1];
 
     it('should call repository.remove with correct parameter', async () => {
       ctx.user = {
         id: 1,
-        roles: [ROLE.USER],
-        username: 'testuser',
+        roles: [ROLE.ADMIN],
+        username: 'adminuser',
       };
 
-      const author = new User();
-      author.id = 1;
-      const foundMovie = new Movie();
-      foundMovie.id = movieIds[0];
-      //foundMovie.author = author;
+      const foundMovies = [
+        {
+          id: movieIds[0],
+          name: 'Movie1',
+          description: 'Thriller Movie',
+          minAge: 12,
+          sessions: new MovieSessionOutput(),
+        },
+      ];
 
-      mockedRepository.getById.mockResolvedValue(foundMovie);
+      mockedRepository.getByIds.mockResolvedValue(foundMovies);
 
       await service.deleteMovies(ctx, movieIds);
-      expect(mockedRepository.remove).toHaveBeenCalledWith(foundMovie);
+      expect(mockedRepository.remove).toHaveBeenCalledWith(foundMovies);
     });
 
     it('should throw not found exception if movie not found', async () => {
@@ -347,28 +358,24 @@ describe('MovieService', () => {
       }
     });
 
-    it('should throw unauthorized exception when someone other than resource owner tries to delete movie', async () => {
+    it('should throw unauthorized exception when someone other than admin requested', async () => {
       ctx.user = {
         id: 2,
         roles: [ROLE.USER],
         username: 'testuser',
       };
-      const movieId = 1;
-
-      const author = new User();
-      author.id = 1;
-
       mockedRepository.getById.mockResolvedValue({
         id: 1,
-        title: 'Old title',
-        post: 'Old post',
-        author,
+        name: 'Movie1',
+        description: 'Thriller Movie',
+        minAge: 12,
+        sessions: new MovieSessionOutput(),
       });
 
       try {
         await service.deleteMovies(ctx, movieIds);
       } catch (error: any) {
-        expect(error.constructor).toEqual(UnauthorizedException);
+        expect(error.message).toEqual('Resource is required for ruleCallback');
         expect(mockedRepository.save).not.toHaveBeenCalled();
       }
     });

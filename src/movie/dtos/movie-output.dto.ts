@@ -4,6 +4,7 @@ import { Expose, Type } from 'class-transformer';
 import { MovieSessionOutput } from './movie-session-output.dto';
 import { MovieSession } from '../entities/movieSession.entity';
 import { IsArray, IsNotEmpty } from 'class-validator';
+import { Movie } from '../entities/movie.entity';
 
 export class MovieOutput {
   @Expose()
@@ -35,8 +36,11 @@ export class MovieOutput {
   @ApiProperty()
   sessions: MovieSessionOutput[];
 
-  fillSessions(sessions: MovieSession[]) {
-    this.sessions = sessions.map((session) => {
+  fillFromDto(movie: Movie) {
+    this.name = movie.name;
+    this.description = movie.description;
+    this.minAge = movie.minAge;
+    this.sessions = movie.sessions.map((session: MovieSession) => {
       var newSession = new MovieSessionOutput();
       newSession.date = session.date;
       newSession.id = session.id;

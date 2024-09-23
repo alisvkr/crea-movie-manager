@@ -98,7 +98,7 @@ describe('AuthController', () => {
         refreshTokenInputDto,
       );
 
-      expect(mockedAuthService.refreshToken).toBeCalledWith(ctx);
+      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(ctx);
       expect(response.data).toEqual(authToken);
     });
 

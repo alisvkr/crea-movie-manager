@@ -24,8 +24,7 @@ describe('UserService', () => {
 
   const user = {
     id: 6,
-    username: 'jhon',
-    name: 'Jhon doe',
+    username: 'crea',
     roles: [ROLE.USER],
   };
 
@@ -73,7 +72,7 @@ describe('UserService', () => {
       };
 
       await service.createUser(ctx, userInput);
-      expect(bcrypt.hash).toBeCalledWith(userInput.password, 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith(userInput.password, 10);
     });
 
     it('should save user with encrypted password', async () => {
@@ -87,13 +86,12 @@ describe('UserService', () => {
 
       await service.createUser(ctx, userInput);
 
-      expect(mockedRepository.save).toBeCalledWith({
-        name: user.name,
+      expect(mockedRepository.save).toHaveBeenCalledWith({
         username: user.username,
         password: 'hashed-password',
         roles: [ROLE.USER],
+        age: 12,
         isAccountDisabled: false,
-        email: 'randomUser@random.com',
       });
     });
 
@@ -104,6 +102,7 @@ describe('UserService', () => {
       });
 
       const userInput = {
+        id: user.id,
         username: user.username,
         password: 'plain-password',
         age: 12,
@@ -117,8 +116,8 @@ describe('UserService', () => {
         id: user.id,
         username: userInput.username,
         roles: [ROLE.USER],
+        age: 12,
         isAccountDisabled: false,
-        email: 'randomUser@random.com',
       });
       expect(result).not.toHaveProperty('password');
     });
@@ -137,7 +136,7 @@ describe('UserService', () => {
 
     it('should find user from DB using given id', async () => {
       await service.findById(ctx, user.id);
-      expect(mockedRepository.findOne).toBeCalledWith({
+      expect(mockedRepository.findOne).toHaveBeenCalledWith({
         where: { id: user.id },
       });
     });
@@ -147,7 +146,6 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
         username: user.username,
         roles: [ROLE.USER],
       });
@@ -167,7 +165,7 @@ describe('UserService', () => {
 
     it('should find user from DB using given id', async () => {
       await service.getUserById(ctx, user.id);
-      expect(mockedRepository.getById).toBeCalledWith(user.id);
+      expect(mockedRepository.getById).toHaveBeenCalledWith(user.id);
     });
 
     it('should return serialized user', async () => {
@@ -175,7 +173,6 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
         username: user.username,
         roles: [ROLE.USER],
       });
@@ -233,7 +230,6 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
         username: user.username,
         roles: [ROLE.USER],
       });
@@ -259,7 +255,7 @@ describe('UserService', () => {
 
     it('should find user from DB using given username', async () => {
       await service.findByUsername(ctx, user.username);
-      expect(mockedRepository.findOne).toBeCalledWith({
+      expect(mockedRepository.findOne).toHaveBeenCalledWith({
         where: {
           username: user.username,
         },
@@ -271,7 +267,6 @@ describe('UserService', () => {
 
       expect(result).toEqual({
         id: user.id,
-        name: user.name,
         username: user.username,
         roles: [ROLE.USER],
       });

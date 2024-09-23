@@ -77,6 +77,8 @@ describe('UserController', () => {
   describe('Update user by id', () => {
     it('Update user by id and returns user', async () => {
       const input = new UpdateUserInput();
+      input.age = 30;
+      input.password = '123';
       mockedUserService.updateUser.mockResolvedValue(expectedOutput);
 
       expect(await controller.updateUser(ctx, 1, input)).toEqual({

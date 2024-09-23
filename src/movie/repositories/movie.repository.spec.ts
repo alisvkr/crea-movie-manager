@@ -47,9 +47,8 @@ describe('MovieRepository', () => {
     it('should return movie if found', async () => {
       const expectedOutput: any = {
         id: 1,
-        title: 'Default Movie',
-        post: 'Hello, world!',
-        author: new User(),
+        name: 'Movie1',
+        description: 'thriller movie!',
       };
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(expectedOutput);
