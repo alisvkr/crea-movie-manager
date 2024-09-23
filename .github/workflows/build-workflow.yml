@@ -25,4 +25,4 @@ jobs:
             ${{ runner.os }}-node-
       - run: npm ci
       - name: Run build step
-        run: docker-compose up --build -d
+        run: docker compose up --build -d
