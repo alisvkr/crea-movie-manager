@@ -8,9 +8,9 @@
 
 ## Good To Know
 
-- http://localhost:8081/?pgsql=pgsqldb&username=root
+- DB GUI => http://localhost:8081/?pgsql=pgsqldb&username=root
 - password written in .env
-- User default admin credentials as manager while testing => username:crea password:crea123
+- Use default "admin" credentials as "manager" user while testing => username:crea password:crea123
 
 ## Features
 
@@ -32,49 +32,6 @@ This script allows you to run the same commands inside the same environment and 
 
 ```bash
 $ npm install
-```
-
-Generate public and private key pair for jwt authentication:
-
-### With docker
-
-Run this command:
-
-```bash
-./scripts/generate-jwt-keys
-```
-
-It will output something like this. You only need to add it to your `.env` file.
-
-```
-To setup the JWT keys, please add the following values to your .env file:
-JWT_PUBLIC_KEY_BASE64="(long base64 content)"
-JWT_PRIVATE_KEY_BASE64="(long base64 content)"
-```
-
-### Without docker
-
-```bash
-$ ssh-keygen -t rsa -b 2048 -m PEM -f jwtRS256.key
-# Don't add passphrase
-$ openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
-```
-
-You may save these key files in `./local` directory as it is ignored in git.
-
-Encode keys to base64:
-
-```bash
-$ base64 -i local/jwtRS256.key
-
-$ base64 -i local/jwtRS256.key.pub
-```
-
-Must enter the base64 of the key files in `.env`:
-
-```bash
-JWT_PUBLIC_KEY_BASE64=BASE64_OF_JWT_PUBLIC_KEY
-JWT_PRIVATE_KEY_BASE64=BASE64_OF_JWT_PRIVATE_KEY
 ```
 
 ## Running the app
@@ -132,8 +89,8 @@ $ npm run test:cov
 # using docker
 $ docker compose exec app npm run migration:run
 
-# generate migration (replace CreateUsers with name of the migration)
-$ npm run migration:generate --name=CreateUsers
+# generate migration (replace InitTables with name of the migration)
+$ npm run migration:generate --name=InitTables
 
 # run migration
 $ npm run migration:run
